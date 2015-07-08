@@ -6,34 +6,37 @@ import sys
 
 class Vis:
 
-    def __init__(self, filename=None):
-        self.numberOfPlots = 2
-        self.figurePerPlot = 4
+    def __init__(self, filename=None, samples=-1):
+        self.numberOfPlots = 1
+        self.figurePerPlot = 8
         self.filename = filename
+        self.samples = samples
 
     def show(self):
+        plt.figure(1)
+
         for plot in range(self.numberOfPlots):
-            plt.figure(plot)
-            plt.waitforbuttonpress()
 
             for fig in range(self.figurePerPlot):
-                input_data = read(self.filename)
+                current_plot = plot * self.figurePerPlot + fig
+                input_data = read(self.filename[:-5] + str(current_plot) + '.wav')
                 audio = input_data[1]
 
-                plt.subplot(2, 2, fig + 1)
-                plt.plot(audio[0:-1])
-                plt.ylabel("Amplitude")
-                plt.xlabel("Time")
-                plt.title("Channel " + str(plot * self.figurePerPlot + fig))
+                plt.subplot(4, 2, fig + 1)
+                plt.plot(audio[0:self.samples])
+                # plt.ylabel("Amplitude")
+                # plt.xlabel("Time")
+                plt.title("Channel " + str(current_plot))
 
-            mng = plt.get_current_fig_manager()
-            mng.resize(*mng.window.maxsize())
-            plt.show()
+        mng = plt.get_current_fig_manager()
+        mng.resize(*mng.window.maxsize())
+        plt.show()
 
 if __name__ == '__main__':
     print(' '.join(sys.argv))
     name = sys.argv[1]
-    visualiser = Vis(name)
+    samples = int(sys.argv[2])
+    visualiser = Vis(name, samples)
     visualiser.show()
 
 
