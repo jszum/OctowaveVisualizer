@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 from scipy.io.wavfile import read
-from scipy.fftpack import fft
+from scipy.fftpack import fft, fftfreq
+import scipy
+import numpy
 import matplotlib.pyplot as plt
 import sys
 
@@ -13,14 +15,30 @@ if __name__ == '__main__':
     samples = int(sys.argv[2])
     input_data = read(name)
 
-    myaudio = input_data[1]
-    audio = myaudio[0:samples]
+    wavfreq = input_data[0]
+    print wavfreq
 
-    normalized =[(ele/2**8.)*2-1 for ele in audio]
+    my_audio = input_data[1]
+    audio = my_audio[0:samples]
+
+    normalized = [(element/2**8.)*2-1 for element in audio]
 
     fft_signal = fft(normalized)
-    d = len(fft_signal)/2
-    plt.plot(abs(fft_signal[:(d-1)]), 'r')
+
+    fft_freq = fftfreq(len(fft_signal), 1.0/wavfreq)
+
+    plt.figure(1)
+    plt.subplot(2, 1, 1)
+    plt.plot(fft_freq, numpy.abs(fft_signal))
+    axes = plt.gca()
+    axes.set_xlim([0, 10000])
+
+    plt.subplot(2, 1, 2)
+    plt.plot(fft_freq, 10*scipy.log10(fft_signal))
+    axes = plt.gca()
+    axes.set_xscale('log')
+    axes.set_xlim([0, 10000])
+
     plt.show()
 
 
