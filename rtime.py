@@ -5,46 +5,56 @@ import matplotlib.animation as animation
 from scipy.io.wavfile import read
 import sys
 
-fig = plt.figure()
-ax1 = fig.add_subplot(1,1,1)
 
-name = sys.argv[1]
+class PlotLine:
 
-input_data = read(name)
+    def __init__(self, name, interval=1000):
+        self.figure = plt.figure()
+        self.ax = self.figure.add_subplot(1,1,1)
+        self.counter = 0
 
-sample_rate = input_data[0]
-print sample_rate
-audio = input_data[1]
-counter = 0
-lim = max(audio)
+        self.wavfile = name
+        self.interval = interval
 
-rate = sample_rate
-interval = 1000
+        self.load_data()
 
+        self.samples_per_plot = self.sample_rate * interval/1000
 
-samples = rate * interval/1000
-print samples
-def animate(i):
-    global counter
-    global lim
-    global rate
+        self.ylimit = max(self.audio)
 
-    xar = []
+    def load_data(self):
+        input_data = read(self.wavfile)
+        self.sample_rate = input_data[0]
+        self.audio = input_data[1]
 
-    yar = audio[counter * samples: (counter+1)*samples]
+    def animate(self, i):
+        current_start = self.counter * self.samples_per_plot
+        current_end = (self.counter+1) * self.samples_per_plot
 
-    length = len(yar)
-    for i in range(length):
-        xar.append(i)
+        yar = self.audio[current_start: current_end]
+        xar = []
 
-    ax1.clear()
-    ax = plt.gca()
-    ax.set_xlim(0, samples)
-    ax.set_ylim(-lim, lim)
-    ax1.plot(xar, yar)
-    counter += 1
+        length = len(yar)
+        for i in range(length):
+            xar.append(i)
 
-ani = animation.FuncAnimation(fig, animate, interval=interval)
-plt.show()
+        self.ax.clear()
+        self.ax = plt.gca()
+        self.ax.set_xlim(0, self.samples_per_plot)
 
+        limit = self.ylimit
 
+        self.ax.set_ylim(-limit, limit)
+        self.ax.plot(xar, yar)
+        self.counter += 1
+
+    def run(self):
+        ani = animation.FuncAnimation(self.figure, self.animate, interval=self.interval)
+        plt.show()
+
+if __name__ == '__main__':
+    print(' '.join(sys.argv))
+    name = sys.argv[1]
+
+    plot = PlotLine(name)
+    plot.run()
