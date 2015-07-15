@@ -10,42 +10,38 @@ class PlotLine:
 
     def __init__(self, name, interval=1000):
         self.figure = plt.figure()
-        self.ax = self.figure.add_subplot(1,1,1)
         self.counter = 0
-
-        self.wavfile = name
         self.interval = interval
 
-        self.load_data()
+        self.load_data(name)
 
         self.samples_per_plot = self.sample_rate * interval/1000
 
-        self.ylimit = max(self.audio)
-
-    def load_data(self):
-        input_data = read(self.wavfile)
+    def load_data(self, wavfile):
+        input_data = read(wavfile)
         self.sample_rate = input_data[0]
         self.audio = input_data[1]
 
     def animate(self, i):
+        ax = self.figure.add_subplot(1, 1, 1)
         current_start = self.counter * self.samples_per_plot
         current_end = (self.counter+1) * self.samples_per_plot
 
-        yar = self.audio[current_start: current_end]
-        xar = []
+        y_data = self.audio[current_start: current_end]
+        x_data = []
 
-        length = len(yar)
+        length = len(y_data)
         for i in range(length):
-            xar.append(i)
+            x_data.append(i)
 
-        self.ax.clear()
-        self.ax = plt.gca()
-        self.ax.set_xlim(0, self.samples_per_plot)
+        ax.clear()
+        ax = plt.gca()
+        ax.set_xlim(0, self.samples_per_plot)
 
-        limit = self.ylimit
+        limit = max(self.audio)
 
-        self.ax.set_ylim(-limit, limit)
-        self.ax.plot(xar, yar)
+        ax.set_ylim(-limit, limit)
+        ax.plot(x_data, y_data)
         self.counter += 1
 
     def run(self):
