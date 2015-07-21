@@ -18,20 +18,34 @@ class PlotLine:
 
         self.load_data(name)
 
-        self.samples_per_plot = self.sample_rate* interval/1000
+        self.samples_per_plot = self.sample_rate * interval/1000
+        self.ax = self.figure.add_subplot(1, 1, 1)
+
+        self.limit = 110000
+        self.figure.canvas.mpl_connect('key_press_event', self.scaling)
 
     def load_data(self, wavfile):
         input_data = read(wavfile)
         self.sample_rate = input_data[0]
         self.audio = input_data[1]
 
+    def scaling(self, event):
+        if event.key == '=':
+            self.limit += 100000
+        if event.key == '-':
+            self.limit -= 100000
+
+        if self.limit < 0:
+            self.limit = 10000
+
+        print('Yaxis max:', self.limit)
+
     def animate(self, i):
-        ax = self.figure.add_subplot(1, 1, 1)
         current_start = self.counter * self.samples_per_plot
         current_end = (self.counter+1) * self.samples_per_plot
 
-        ax.clear()
-        ax = plt.gca()
+        self.ax.clear()
+        self.ax = plt.gca()
 
         normalized = []
         fft_signal = []
@@ -41,18 +55,16 @@ class PlotLine:
         fft_signal = fft(normalized)
         fft_freq = fftfreq(len(fft_signal), 1.0/self.sample_rate)
 
-        limit = 80
-        #ax.set_ylim(-limit, limit)
-        ax.set_xlim(0, self.samples_per_plot/2)
+        self.ax.set_ylim(0, self.limit)
+        self.ax.set_xlim(0, self.samples_per_plot/2)
 
-
-        plt.plot(fft_freq, abs(fft_signal))
+        plt.plot(fft_freq[200:], abs(fft_signal[200:]))
         axes = plt.gca()
         axes.set_xscale('linear')
         self.counter += 1
 
     def run(self):
-        ani = animation.FuncAnimation(self.figure, self.animate, interval=800)
+        ani = animation.FuncAnimation(self.figure, self.animate, interval=850)
         plt.show()
 
 if __name__ == '__main__':
