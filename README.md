@@ -1,2 +1,2 @@
 # OctowaveVisualizer
-A visualizer based on gstreamer that will allow to visualize one of eight *.wav files 
+Set of programs that will be visualizers based on gstreamer. They will allow to visualize one of eight *.wav files or all of them, according to needs.
